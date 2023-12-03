@@ -15,10 +15,34 @@ export const fetchComments = createAsyncThunk(
     }
 );
 
+// Create an asynchronous action using createAsyncThunk
+export const postComment = createAsyncThunk(
+    'comments/postComment',
+    async (payload, { dispatch, getState }) => {
+        setTimeout(() => {
+
+            // Destructuring to get the comments portion of the state
+            const { comments } = getState();
+            
+            // Set the date property using the Javascript date method to set the date to ISO string
+            payload.date = new Date().toISOString();
+            // Set the id property to the length of comments.commentsArray
+            payload.id = comments.commentsArray.length;
+            
+            dispatch(addComment(payload));
+        }, 2000);
+    }
+)
+
 const commentsSlice = createSlice({
     name: 'comments',
     initialState: { isLoading: true, errMess: null, commentsArray: [] },
-    reducers: {},
+    reducers: {
+        addComment: (state, action) => {
+            // Using a mutating array method to add action.payload to state.commentsArray
+            state.commentsArray.push(action.payload);
+        }
+    },
     extraReducers: (builder) => {
         builder
             .addCase(fetchComments.pending, (state) => {
@@ -35,7 +59,10 @@ const commentsSlice = createSlice({
                     ? action.error.message
                     : 'Fetch failed';
             });
+
     }
 });
+
+export const {addComment} = commentsSlice.actions;
 
 export const commentsReducer = commentsSlice.reducer;
